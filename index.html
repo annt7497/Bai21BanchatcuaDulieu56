@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[IT5-Lesson2.1] Bản chất của Dữ liệu</title>
+    <!-- Tải Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Thêm font Calistoga (theo yêu cầu trước) -->
+    <link href="https://fonts.googleapis.com/css2?family=Calistoga&display=swap" rel="stylesheet">
+    <style>
+        /* Định nghĩa font Calistoga cho toàn bộ trang */
+        body {
+            font-family: 'Calistoga', cursive;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #e5e7eb; /* gray-200 */
+            padding: 8px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        .data-table th {
+            background-color: #f3f4f6; /* gray-100 */
+            font-weight: bold;
+            color: #1f2937; /* gray-800 */
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        /* Hiệu ứng làm sạch dữ liệu */
+        .highlight-error {
+            background-color: #fecaca; /* red-200 */
+            transition: background-color 0.5s ease;
+        }
+        .highlight-cleaned {
+            background-color: #d1fae5; /* green-100 */
+            transition: background-color 0.5s ease;
+        }
+        .error-checkbox:checked + label {
+            background-color: #a7f3d0; /* green-200 */
+            border-color: #10b981; /* green-500 */
+        }
+        .error-checkbox {
+            appearance: none;
+            width: 0;
+            height: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-4 sm:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Tiêu đề Bài học -->
+        <header class="text-center mb-8 p-6 bg-white shadow-xl rounded-2xl border-b-4 border-indigo-600">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 mb-2">
+                <span class="text-indigo-600">BẢN CHẤT CỦA DỮ LIỆU</span>
+            </h1>
+            <p class="text-xl text-gray-600 font-semibold mb-1">Bài học Tin học - Lớp 5 (Tiết 5 & 6)</p>
+            <!-- Mục tiêu bài học -->
+            <p class="text-lg text-gray-700 font-medium italic">
+                Mục tiêu: Các cách chỉnh sửa và cập nhật dữ liệu: loại bỏ các giá trị trùng và xử lý giá trị bị thiếu.
+            </p>
+        </header>
+
+        <!-- Khu vực Thông báo (Message Box thay thế Alert) -->
+        <div id="message-box" class="fixed inset-0 bg-gray-600 bg-opacity-75 hidden items-center justify-center z-50">
+            <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm mx-4 text-center">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Thông Báo</h3>
+                <p id="message-text" class="mb-6 text-gray-600"></p>
+                <button onclick="closeMessageBox()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-full transition duration-300">Đóng</button>
+            </div>
+        </div>
+
+        <!-- PHẦN VIDEO: Các thao tác cơ bản trong Excel -->
+        <section class="mb-10 p-6 bg-white shadow-xl rounded-2xl">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4 border-l-4 border-purple-500 pl-3">
+                Các Thao Tác Cơ Bản Trong Excel
+            </h2>
+            <p class="text-gray-600 mb-4 italic">Trước khi bắt đầu làm sạch dữ liệu, em hãy cùng ôn lại một số thao tác cơ bản trong Excel qua video sau:</p>
+            
+            <div class="relative pt-[56.25%]"> <!-- Tỷ lệ 16:9 -->
+                <iframe 
+                    class="absolute top-0 left-0 w-full h-full rounded-xl shadow-lg"
+                    <!-- Video mới: https://www.youtube.com/watch?v=MdRta_6cqjs -->
+                    src="https://www.youtube.com/embed/MdRta_6cqjs" 
+                    title="Hướng dẫn làm sạch dữ liệu trong Excel" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowfullscreen
+                    referrerpolicy="strict-origin-when-cross-origin"> 
+                </iframe>
+
+                <!-- Cơ chế Dự phòng (Fallback) nếu video không load được -->
+                <div class="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center bg-gray-100/90 p-4 rounded-xl text-center text-gray-700 border-2 border-dashed border-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-red-500 mb-2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    <p class="font-bold mb-2">Không thể tải video: Lỗi cấu hình trình phát</p>
+                    <p class="text-sm">Xin lỗi em! Em có thể xem video trực tiếp tại đường dẫn sau:</p>
+                    <a href="https://youtu.be/MdRta_6cqjs" target="_blank" class="text-indigo-600 font-bold hover:underline">
+                        Bấm vào đây để xem trên YouTube
+                    </a>
+                </div>
+            </div>
+        </section>
+        <!-- KẾT THÚC PHẦN VIDEO -->
+
+        <!-- Phần 1: Khám phá Dữ liệu có lỗi -->
+        <section class="mb-10 p-6 bg-white shadow-xl rounded-2xl">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4 border-l-4 border-red-500 pl-3">
+                1. Khám phá & Phát hiện Lỗi Dữ liệu
+            </h2>
+            <p class="text-gray-600 mb-6 italic">Hãy quan sát bảng dữ liệu bán hàng bên dưới. Em có thấy điều gì bất thường không?</p>
+            
+            <div id="data-container">
+                <!-- Bảng dữ liệu sẽ được render tại đây -->
+                <p class="text-center text-gray-500 py-4">Đang tải bảng dữ liệu...</p>
+            </div>
+        </section>
+        
+        <!-- Phần 2: Thực hành Phát hiện Lỗi -->
+        <section class="mb-10 p-6 bg-white shadow-xl rounded-2xl">
+            <h2 class="text-2xl font-bold text-gray-700 mb-6 border-l-4 border-green-500 pl-3">
+                2. Thực hành Phát hiện Lỗi
+            </h2>
+            
+            <p class="text-lg font-bold text-gray-800 mb-4">
+                Trong bảng em vừa khám phá đã có những lỗi gì? (Chọn tất cả các đáp án đúng)
+            </p>
+
+            <div id="error-check-container" class="space-y-3">
+                <!-- Các ô checkbox trắc nghiệm -->
+                <div class="flex items-center">
+                    <input type="checkbox" id="check-duplicate" class="error-checkbox" data-correct="true">
+                    <label for="check-duplicate" class="w-full cursor-pointer p-3 bg-gray-100 rounded-lg shadow-sm border border-gray-300 hover:bg-gray-200 transition duration-150">
+                        A. Thông tin trùng lặp
+                    </label>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="check-missing" class="error-checkbox" data-correct="true">
+                    <label for="check-missing" class="w-full cursor-pointer p-3 bg-gray-100 rounded-lg shadow-sm border border-gray-300 hover:bg-gray-200 transition duration-150">
+                        B. Ô thiếu dữ liệu
+                    </label>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="check-inconsistent" class="error-checkbox" data-correct="true">
+                    <label for="check-inconsistent" class="w-full cursor-pointer p-3 bg-gray-100 rounded-lg shadow-sm border border-gray-300 hover:bg-gray-200 transition duration-150">
+                        C. Không đồng nhất dữ liệu giữa các cột (hoặc trong cùng một cột)
+                    </label>
+                </div>
+            </div>
+
+            <button onclick="checkErrors()" id="check-button" class="mt-6 w-full px-6 py-3 font-bold text-white bg-indigo-500 rounded-lg shadow-lg hover:bg-indigo-600 transition duration-300 transform hover:scale-[1.01]">
+                Kiểm tra Đáp án
+            </button>
+
+            <!-- Nút thực hành sẽ hiện ra sau khi kiểm tra đúng -->
+            <div id="cleaning-buttons" class="hidden mt-6">
+                <h3 class="text-xl font-bold text-gray-700 mb-3 text-center">Bắt đầu Làm sạch Dữ liệu:</h3>
+                <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                    <button onclick="removeDuplicates()" class="flex-1 px-4 py-2 font-bold text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600 transition duration-300 transform hover:scale-105">
+                        1. Xóa Dữ liệu TRÙNG LẶP
+                    </button>
+                    <button onclick="cleanAndStandardize()" class="flex-1 px-4 py-2 font-bold text-white bg-green-500 rounded-lg shadow-md hover:bg-green-600 transition duration-300 transform hover:scale-105">
+                        2. Chuẩn hóa & Điền THIẾU
+                    </button>
+                </div>
+            </div>
+
+            <p id="status-message" class="text-center text-lg font-semibold text-gray-700 mt-4 h-8">
+                Hãy chọn các lỗi trong bảng và nhấn "Kiểm tra Đáp án".
+            </p>
+        </section>
+        
+        <!-- Phần 3 (MỚI): Bài Tập Vận Dụng -->
+        <section class="mb-10 p-6 bg-white shadow-xl rounded-2xl">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4 border-l-4 border-yellow-500 pl-3">
+                3. Bài Tập Vận Dụng: Phân tích Kết quả Học tập
+            </h2>
+            <p class="text-gray-600 mb-4 italic">Hãy vận dụng các kỹ năng làm sạch dữ liệu vừa học để phân tích kết quả học tập giữa kỳ I của bản thân. Em có thể sử dụng Excel hoặc Google Sheets.</p>
+            
+            <ol class="list-decimal list-inside space-y-4 ml-4">
+                <li>
+                    <span class="font-bold text-gray-800">Nhiệm vụ 1: Thu thập Dữ liệu</span>
+                    <p class="text-sm text-gray-700 ml-2">Ghi lại điểm trung bình giữa kỳ I các môn học của bản thân (hoặc dùng bảng mẫu) vào một bảng tính.</p>
+                </li>
+                <li>
+                    <span class="font-bold text-red-600">Nhiệm vụ 2: Thực hành Làm sạch Dữ liệu</span>
+                    <ul class="list-disc list-inside ml-4 text-sm text-gray-700 space-y-1">
+                        <li>Kiểm tra và điền các ô bị thiếu điểm hoặc nhập sai.</li>
+                        <li>Chuẩn hóa lại cách ghi tên môn học (ví dụ: tất cả đều viết hoa chữ cái đầu: "Toán" thay vì "toán").</li>
+                        <li>(Nâng cao) Chuẩn hóa cách ghi số thập phân (tất cả là `7.5` thay vì `7,5`) hoặc ký hiệu đánh giá (thêm ⭐).</li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="font-bold text-blue-600">Nhiệm vụ 3: Sắp xếp và Phân tích</span>
+                    <ul class="list-disc list-inside ml-4 text-sm text-gray-700 space-y-1">
+                        <li>Sắp xếp điểm từ cao đến thấp để xác định môn học mạnh nhất và yếu nhất.</li>
+                        <li>Tạo biểu đồ cột (Insert → Chart) để so sánh điểm các môn.</li>
+                        <li>Tạo thêm cột "Mục tiêu cuối kỳ" để lập kế hoạch cố gắng cho cuối kỳ.</li>
+                    </ul>
+                </li>
+            </ol>
+        </section>
+
+        <!-- Phần 4 (Đã đổi số thứ tự): Tóm Tắt Phương Pháp -->
+        <section class="mb-10 p-6 bg-white shadow-xl rounded-2xl">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4 border-l-4 border-yellow-500 pl-3">
+                4. Tóm Tắt Phương Pháp & Kỹ Thuật Làm Sạch
+            </h2>
+            <p class="text-gray-600 mb-4 italic">Để có được một bảng dữ liệu sạch và đáng tin cậy, em cần thực hiện theo 3 bước sau:</p>
+            
+            <ol class="list-decimal list-inside space-y-4 ml-4">
+                <li>
+                    <span class="font-bold text-red-600">Phát hiện và nhận diện lỗi:</span>
+                    <p class="text-sm text-gray-700 ml-2">Quan sát dữ liệu để tìm ra các vấn đề như: thông tin trùng lặp, ô thiếu dữ liệu (Missing Values) hoặc định dạng không đồng nhất (Inconsistent Data).</p>
+                </li>
+                <li>
+                    <span class="font-bold text-blue-600">Loại bỏ dữ liệu TRÙNG LẶP:</span>
+                    <p class="text-sm text-gray-700 ml-2">Giữ lại một dòng duy nhất cho các thông tin bị lặp lại. Việc này giúp máy tính không bị nhầm lẫn khi phân tích.</p>
+                </li>
+                <li>
+                    <span class="font-bold text-green-600">Chuẩn hóa và Xử lý THIẾU:</span>
+                    <ul class="list-disc list-inside ml-4 text-sm text-gray-700 space-y-1">
+                        <li><span class="font-medium">Chuẩn hóa định dạng:</span> Đưa dữ liệu về cùng một kiểu viết (ví dụ: tất cả đều là "4.7⭐" hoặc tất cả đều viết hoa chữ cái đầu).</li>
+                        <li><span class="font-medium">Xử lý giá trị thiếu:</span> Điền giá trị hợp lý vào các ô bị trống (ví dụ: điền giá trung bình hoặc bổ sung giá trị còn thiếu).</li>
+                    </ul>
+                </li>
+            </ol>
+        </section>
+
+        <!-- Phần 5 (Đã đổi số thứ tự): Tổng kết & Suy ngẫm -->
+        <section class="p-6 bg-indigo-50 shadow-xl rounded-2xl border-l-4 border-indigo-500">
+            <h2 class="text-2xl font-bold text-indigo-700 mb-4">
+                5. Tổng kết & Tư duy Dữ liệu (Data Thinking)
+            </h2>
+            <div class="space-y-4 text-gray-700">
+                <p><span class="font-bold text-indigo-900">1. Vì sao cần làm sạch dữ liệu?</span></p>
+                <p class="pl-4 italic">→ Để máy tính và con người dễ quan sát, dễ hiểu và ra quyết định chính xác hơn. Dữ liệu sai/thiếu sẽ dẫn đến kết quả phân tích sai.</p>
+                
+                <p><span class="font-bold text-indigo-900">2. Dữ liệu sạch giúp ích gì?</span></p>
+                <p class="pl-4 italic">→ Giúp các ứng dụng AI (như Shopee, YouTube) gợi ý sản phẩm/video chính xác hơn, và giúp chúng ta phân tích kết quả học tập để đặt mục tiêu đúng đắn.</p>
+            </div>
+        </section>
+        
+    </div>
+
+    <script>
+        // Dữ liệu ban đầu với các lỗi theo yêu cầu
+        const initialData = [
+            // 1. Lỗi trùng lặp & viết hoa/thường không thống nhất (Tai nghe Bluetooth)
+            { stt: 1, ten: "tai nghe bluetooth", gia: "159000", danhGia: "⭐4.7" },
+            { stt: 2, ten: "tai nghe Bluetooth", gia: "159,000đ", danhGia: "4.7" }, // Trùng với STT 1
+            { stt: 3, ten: "Ốp điện thoại trong suốt", gia: "69000", danhGia: "4.8⭐" },
+            // 2. Lỗi thiếu & không thống nhất (Ốp điện thoại)
+            { stt: 4, ten: "op dien thoai trong suot", gia: "(trống)", danhGia: "4,8" }, // Thiếu giá, Trùng với STT 3
+            // 3. Lỗi đánh giá không thống nhất (Bình giữ nhiệt)
+            { stt: 5, ten: "Bình giữ nhiệt Inox", gia: "89,000", danhGia: "9/10" }, // Lỗi không đồng nhất
+            { stt: 6, ten: "Binh giu nhiet Inox", gia: "89,000đ", danhGia: "4.5" }, // Trùng với STT 5
+            // 4. Lỗi thiếu & trùng lặp (Sạc dự phòng)
+            { stt: 7, ten: "Sạc dự phòng 10.000mAh", gia: "199,000", danhGia: "4.6" },
+            { stt: 8, ten: "Sạc dự phòng 10000mAh", gia: "199,000đ", danhGia: "(trống)" }, // Thiếu đánh giá, Trùng với STT 7
+            // 5. Lỗi trùng lặp (Chuột không dây)
+            { stt: 9, ten: "chuột không dây", gia: "129.000đ", danhGia: "⭐4.8" },
+            { stt: 10, ten: "Chuột Không Dây", gia: "129,000", danhGia: "4.8" }, // Trùng với STT 9
+            // 6. Lỗi thiếu giá
+            { stt: 11, ten: "Loa Bluetooth di động", gia: "(thiếu)", danhGia: "⭐4.9" },
+            // 7. Lỗi thiếu tên và đánh giá không thống nhất
+            { stt: 12, ten: "(thiếu tên sản phẩm)", gia: "250,000đ", danhGia: "10/10" },
+            // 8. Dữ liệu sạch (làm mốc)
+            { stt: 13, ten: "Bàn phím cơ mini", gia: "450,000", danhGia: "4.9⭐" },
+        ];
+
+        let currentData = [...initialData];
+        let status = 0; // 0: Initial, 1: Error Checked, 2: Duplicates Removed, 3: Cleaned
+
+        const MSG_BOX = document.getElementById('message-box');
+        const MSG_TEXT = document.getElementById('message-text');
+        const STATUS_MSG = document.getElementById('status-message');
+        
+        // Tất cả các dòng đều có lỗi ở mức độ nào đó, trừ STT 13
+        const ERROR_ROWS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; 
+
+        function showMessageBox(message) {
+            MSG_TEXT.textContent = message;
+            MSG_BOX.classList.remove('hidden');
+            MSG_BOX.classList.add('flex');
+        }
+
+        function closeMessageBox() {
+            MSG_BOX.classList.add('hidden');
+            MSG_BOX.classList.remove('flex');
+        }
+
+        /**
+         * Render bảng dữ liệu ra HTML
+         */
+        function renderTable() {
+            const container = document.getElementById('data-container');
+            let html = '<table class="data-table">';
+            
+            // Header: Chỉ giữ lại 3 cột theo yêu cầu mới
+            html += '<thead><tr><th>STT</th><th>Tên sản phẩm</th><th>Giá bán (VND)</th><th>Đánh giá sao</th></tr></thead>';
+            
+            // Body
+            html += '<tbody id="data-body">';
+            currentData.forEach((item, index) => {
+                // Thêm class cho dòng có lỗi hoặc đã được làm sạch
+                let rowClass = '';
+                // Nếu đã kiểm tra lỗi (status >= 1), làm nổi bật các dòng lỗi để gợi ý
+                if (status >= 1 && ERROR_ROWS.includes(item.stt) && status < 3) {
+                    rowClass = 'highlight-error';
+                }
+                if (status === 3) {
+                     // Nếu dữ liệu đã sạch, làm nổi bật màu xanh
+                     rowClass = 'highlight-cleaned';
+                }
+                
+                // Chuẩn bị dữ liệu hiển thị, giữ nguyên lỗi nếu chưa làm sạch (status < 3)
+                const ten = status < 3 ? item.ten : cleanProductName(item.ten);
+                const gia = status < 3 ? item.gia : cleanPrice(item.gia);
+                const danhGia = status < 3 ? item.danhGia : cleanRating(item.danhGia);
+
+                html += `<tr class="${rowClass}" data-stt="${item.stt}">
+                    <td>${index + 1}</td>
+                    <td class="${status === 3 && (item.stt === 12 || item.stt === 4) ? 'font-bold text-green-700' : ''}">${ten}</td>
+                    <td class="${status === 3 && (item.stt === 4 || item.stt === 11) ? 'font-bold text-green-700' : ''}">${gia}</td>
+                    <td class="${status === 3 && (item.stt === 8 || item.stt === 5 || item.stt === 12) ? 'font-bold text-green-700' : ''}">${danhGia}</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+
+            // Nếu đã kiểm tra lỗi, hiển thị nút thực hành tiếp
+            if (status >= 1) {
+                document.getElementById('cleaning-buttons').classList.remove('hidden');
+                document.getElementById('check-button').classList.add('hidden');
+                document.getElementById('error-check-container').style.pointerEvents = 'none'; // Khóa checkbox
+            }
+        }
+
+        // --- Các hàm làm sạch dữ liệu (đã tinh chỉnh) ---
+
+        function cleanProductName(name) {
+            // Xử lý lỗi thiếu tên (STT 12)
+            if (name.includes("(thiếu tên sản phẩm)")) return "Sản phẩm mới (Đã điền)";
+            // Chuẩn hóa tên (viết hoa chữ cái đầu và loại bỏ lỗi gõ)
+            name = name.toLowerCase().replace(/op dien thoai/g, 'ốp điện thoại');
+            name = name.replace(/binh giu nhiet/g, 'bình giữ nhiệt');
+            name = name.replace(/chuột không dây/g, 'chuột không dây');
+            
+            const words = name.split(' ');
+            const capitalizedWords = words.map(word => {
+                if (word.length === 0) return '';
+                // Viết hoa chữ cái đầu tiên của mỗi từ
+                return word.charAt(0).toUpperCase() + word.slice(1);
+            });
+            return capitalizedWords.join(' ');
+        }
+
+        function cleanPrice(price) {
+            // Xử lý lỗi thiếu giá (STT 4, 11)
+            if (price.includes("(trống)") || price.includes("(thiếu)")) return "Đã bổ sung: 80,000đ";
+            // Chuẩn hóa sang định dạng 159,000đ (loại bỏ ký tự không cần thiết)
+            price = price.replace(/[^0-9\.]/g, '');
+            if (price.length > 0) {
+                 return price.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + 'đ';
+            }
+            return price;
+        }
+
+        function cleanRating(rating) {
+            // Xử lý lỗi thiếu đánh giá (STT 8)
+            if (rating.includes("(trống)")) return "4.6⭐ (Đã điền)";
+            
+            // Chuẩn hóa đánh giá 9/10 hoặc 10/10 (STT 5, 12)
+            if (rating.includes('/10')) {
+                const score = parseInt(rating.split('/')[0]) / 2; // Quy đổi thang 10 (max) sang thang 5 (max)
+                rating = `${score.toFixed(1)}⭐ (Quy đổi)`;
+            }
+            
+            // Chuẩn hóa sang 4.7⭐
+            rating = rating.replace(/[^0-9\.,⭐]/g, '').replace(/,/g, '.');
+            if (!rating.includes('⭐')) {
+                rating += '⭐';
+            }
+            return rating;
+        }
+        
+        // --- Các hàm tương tác ---
+
+        function checkErrors() {
+            const checkboxes = document.querySelectorAll('.error-checkbox');
+            let allCorrect = true;
+
+            checkboxes.forEach(checkbox => {
+                const isChecked = checkbox.checked;
+                const isCorrect = checkbox.dataset.correct === 'true';
+
+                if (isChecked !== isCorrect) {
+                    allCorrect = false;
+                }
+            });
+
+            if (allCorrect) {
+                status = 1;
+                renderTable(); // Bắt đầu làm nổi bật lỗi (màu đỏ)
+                STATUS_MSG.textContent = "✅ Chúc mừng! Em đã phát hiện ra cả 3 loại lỗi dữ liệu phổ biến.";
+                showMessageBox("Tuyệt vời! Em đã xác định chính xác các vấn đề. Bây giờ, hãy thực hiện các bước làm sạch dữ liệu bên dưới.");
+            } else {
+                STATUS_MSG.textContent = "❌ Đáp án chưa đúng. Hãy chọn lại các loại lỗi có trong bảng dữ liệu.";
+                showMessageBox("Em hãy quan sát kỹ lại bảng. Có 3 loại lỗi chính: trùng lặp, thiếu và không đồng nhất. Hãy chọn lại cho đúng nhé!");
+            }
+        }
+
+        function removeDuplicates() {
+            if (status < 1) {
+                showMessageBox("⚠️ Em cần hoàn thành phần Phát hiện Lỗi trước!");
+                return;
+            }
+            if (status >= 2) {
+                showMessageBox("✅ Dữ liệu trùng lặp đã được xóa. Hãy chuyển sang bước 2: Chuẩn hóa & Điền thiếu.");
+                return;
+            }
+
+            // Tạo một bản đồ để theo dõi dữ liệu duy nhất dựa trên Tên sản phẩm đã chuẩn hóa
+            const seen = new Map();
+            const cleanedData = [];
+
+            initialData.forEach(item => {
+                // Sử dụng hàm chuẩn hóa tên để nhận diện trùng lặp
+                const standardizedName = cleanProductName(item.ten);
+                
+                // Chỉ thêm vào nếu Tên sản phẩm chưa từng xuất hiện (sau khi đã chuẩn hóa)
+                if (!seen.has(standardizedName)) {
+                    seen.set(standardizedName, true);
+                    cleanedData.push(item);
+                }
+            });
+
+            currentData = cleanedData;
+            status = 2;
+            renderTable();
+            STATUS_MSG.textContent = "✅ Đã loại bỏ các dòng dữ liệu bị trùng lặp. (Còn lại " + currentData.length + " dòng)";
+            showMessageBox("Xuất sắc! Chúng ta đã xóa các dữ liệu bị trùng lặp. Giờ còn lại các lỗi về định dạng và giá trị thiếu (vẫn đang đánh dấu đỏ).");
+        }
+
+        function cleanAndStandardize() {
+            if (status < 2) {
+                showMessageBox("⚠️ Em cần xóa dữ liệu trùng lặp trước (bước 1)!");
+                return;
+            }
+            if (status >= 3) {
+                showMessageBox("🎉 Bảng dữ liệu đã HOÀN TOÀN SẠCH! Em đã hoàn thành bài thực hành.");
+                return;
+            }
+
+            // Áp dụng các hàm làm sạch cho dữ liệu đã được lọc trùng
+            currentData = currentData.map(item => ({
+                stt: item.stt, // Giữ lại STT gốc để tiện theo dõi
+                ten: cleanProductName(item.ten),
+                gia: cleanPrice(item.gia),
+                danhGia: cleanRating(item.danhGia),
+            }));
+            
+            status = 3;
+            renderTable();
+            STATUS_MSG.textContent = "🎉 Bảng dữ liệu đã HOÀN TOÀN SẠCH! (Đã chuẩn hóa định dạng và điền các giá trị thiếu).";
+            showMessageBox("Hoàn hảo! Chúng ta đã chuẩn hóa định dạng và điền các giá trị còn thiếu. Bảng dữ liệu của em đã sẵn sàng để phân tích!");
+        }
+
+        // Khởi tạo bảng khi trang tải xong
+        window.onload = () => {
+            renderTable();
+        };
+
+    </script>
+</body>
+</html>
